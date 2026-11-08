@@ -21,25 +21,32 @@ jobs:
           distribution: temurin
           java-version: '25'
 
-      - name: Extract MAX Edition
+      - name: Install Maven
         run: |
-          unzip -q AdminCore-Paper-26.1.2-MAX-Edition.zip -d extracted
+          sudo apt-get update
+          sudo apt-get install -y maven unzip
 
-      - name: Find Maven Project
+      - name: Extract Fixed MAX Edition
+        run: |
+          unzip -q AdminCore-Paper-26.1.2-MAX-Edition-FIXED.zip -d extracted
+
+      - name: Locate Maven Project
         run: |
           POM=$(find extracted -name pom.xml -print -quit)
+
           if [ -z "$POM" ]; then
-            echo "ERROR: pom.xml not found in ZIP"
+            echo "ERROR: pom.xml not found"
             exit 1
           fi
+
           echo "PROJECT_DIR=$(dirname "$POM")" >> "$GITHUB_ENV"
 
-      - name: Build Plugin
+      - name: Build AdminCore
         run: |
           cd "$PROJECT_DIR"
           mvn -B clean package
 
-      - name: Upload JAR
+      - name: Upload Plugin JAR
         uses: actions/upload-artifact@v4
         with:
           name: AdminCore-MAX-Plugin
